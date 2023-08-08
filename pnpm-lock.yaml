@@ -43,6 +43,9 @@ dependencies:
   sortablejs:
     specifier: ^1.15.0
     version: 1.15.0
+  uuid:
+    specifier: ^9.0.0
+    version: 9.0.0
   vue:
     specifier: ^3.2.40
     version: 3.2.47
@@ -145,7 +148,7 @@ devDependencies:
     specifier: ^5.8.2
     version: 5.8.2(rollup@2.79.1)
   stylelint:
-    specifier: ^15.7.0
+    specifier: ^15.3.0
     version: 15.10.2
   stylelint-config-rational-order:
     specifier: ^0.1.2
@@ -8544,6 +8547,11 @@ packages:
     deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
     hasBin: true
     dev: true
+
+  /uuid@9.0.0:
+    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
+    hasBin: true
+    dev: false
 
   /v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}

@@ -41,6 +41,23 @@
           </template>
         </a-input-password>
       </a-form-item>
+      <a-form-item class="login-form-captcha" field="captcha" hide-label>
+        <a-input
+          v-model="userInfo.validCode"
+          :placeholder="$t('login.form.placeholder.captcha')"
+          allow-clear
+          style="width: 63%"
+        >
+          <template #prefix><icon-check-circle /></template>
+        </a-input>
+        <img
+          :src="captchaImgUrl"
+          :alt="$t('login.form.captcha')"
+          style="height: 31.6px; margin-left: 20px; cursor: pointer"
+          @click="handleRefreshCaptcha"
+        />
+      </a-form-item>
+
       <a-space :size="16" direction="vertical">
         <div class="login-form-password-actions">
           <a-checkbox
@@ -72,7 +89,8 @@
   import { useStorage } from '@vueuse/core';
   import { useUserStore } from '@/store';
   import useLoading from '@/hooks/loading';
-  import type { LoginData } from '@/api/user';
+  import type { LoginData } from '@/api/auth/auth';
+  import { getDeviceId } from '@/utils/auth';
 
   const router = useRouter();
   const { t } = useI18n();
@@ -85,11 +103,34 @@
     username: 'admin', // 演示默认值
     password: 'admin', // demo default value
   });
+
+  const deviceId = getDeviceId();
   const userInfo = reactive({
     username: loginConfig.value.username,
     password: loginConfig.value.password,
+    validCode: '',
+    deviceId,
+    grant_type: 'password_code',
   });
 
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const captchaImgUrl = ref<string>(
+    `${baseUrl}/api-auth/validata/code/${deviceId}`
+  );
+
+  /**
+   * 刷新验证码
+   */
+  const handleRefreshCaptcha = () => {
+    const timestamp = new Date().getTime();
+    captchaImgUrl.value = `${baseUrl}/api-auth/validata/code/${deviceId}?timestamp=${timestamp}`;
+  };
+
+  /**
+   * 登录
+   * @param errors
+   * @param values
+   */
   const handleSubmit = async ({
     errors,
     values,

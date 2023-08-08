@@ -10,10 +10,11 @@ export interface LoginData {
 
 export interface LoginRes {
   token: string;
+  refresh_token: string;
 }
 
 /**
- * 用户登录
+ * 用户
  * @param loginData
  */
 export function login(loginData: LoginData) {

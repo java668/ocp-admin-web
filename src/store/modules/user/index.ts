@@ -33,6 +33,7 @@ const useUserStore = defineStore('user', {
         userId: null,
       },
     ],
+    roleCodes: undefined,
     roleId: null,
     oldPassword: null,
     newPassword: null,
@@ -76,8 +77,9 @@ const useUserStore = defineStore('user', {
     // Get user's information
     async info() {
       const res = await getUserInfo();
-
-      this.setInfo(res.datas);
+      const { datas } = res;
+      datas.roleCodes = datas?.roles?.map((item) => item.code);
+      this.setInfo(datas);
     },
 
     // Login

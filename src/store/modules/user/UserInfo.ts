@@ -70,6 +70,7 @@ export interface UserInfo {
   type: string;
   openId: string;
   roles: UserInfoRoles[];
+  roleCodes?: string[];
   roleId?: any;
   oldPassword?: any;
   newPassword?: any;

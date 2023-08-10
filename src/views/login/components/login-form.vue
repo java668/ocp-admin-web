@@ -122,6 +122,7 @@
    * 刷新验证码
    */
   const handleRefreshCaptcha = () => {
+    console.log(deviceId);
     const timestamp = new Date().getTime();
     captchaImgUrl.value = `${baseUrl}/api-auth/validata/code/${deviceId}?timestamp=${timestamp}`;
   };
@@ -159,7 +160,9 @@
         loginConfig.value.password = rememberPassword ? password : '';
       } catch (err) {
         errorMessage.value = (err as Error).message;
+        console.log('catch', loading.value);
       } finally {
+        console.log('finally', loading.value);
         setLoading(false);
       }
     }

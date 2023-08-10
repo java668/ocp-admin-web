@@ -7,8 +7,6 @@ declare module '*.vue' {
   export default component;
 }
 
-declare module 'uuid';
-
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string;
 }

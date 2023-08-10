@@ -1,38 +1,46 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
+import queryString from 'query-string';
+import { HttpResponse } from '@/types/global';
+
+type GrantType = 'password_code' | 'password';
 
 export interface LoginData {
   username: string;
   password: string;
   validCode: string;
   deviceId: string;
-  grant_type: string;
+  grant_type: GrantType;
 }
 
 export interface LoginRes {
-  token: string;
+  access_token: string;
+  token_type: string;
   refresh_token: string;
+  expires_in: number;
+  scope: string;
+  tenantId: string;
+  license: string;
+  account_type: string;
+  client_ip: string;
 }
+
+const { VITE_API_CLIENT_ID, VITE_API_CLIENT_SECRET } = import.meta.env;
 
 /**
  * 用户
  * @param loginData
  */
 export function login(loginData: LoginData) {
-  const { VITE_API_CLIENT_ID, VITE_API_CLIENT_SECRET } = import.meta.env;
   const client = window.btoa(`${VITE_API_CLIENT_ID}:${VITE_API_CLIENT_SECRET}`);
   const Authorization = `Basic ${client}`;
-  return axios.request<LoginRes>({
+
+  return axios.request<LoginRes, HttpResponse<LoginRes>, LoginData>({
     url: '/api-auth/oauth/token',
     method: 'POST',
     data: loginData,
     transformRequest: [
       (data) => {
-        let ret = '';
-        Object.keys(data).forEach((key) => {
-          // 获取到属性对应的值，做一些处理
-          ret += `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}&`;
-        });
-        return ret;
+        return queryString.stringify(data);
       },
     ],
     headers: {

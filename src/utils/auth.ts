@@ -26,7 +26,7 @@ const getDeviceId = (): string | null => {
   }
   const uuid: string = uuidv4();
   localStorage.setItem(DEVICE_ID_KEY, uuid);
-  return deviceId;
+  return uuid;
 };
 
 export { isLogin, getToken, setToken, clearToken, getDeviceId };

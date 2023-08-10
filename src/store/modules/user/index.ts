@@ -1,34 +1,57 @@
 import { defineStore } from 'pinia';
-import { logout as userLogout, getUserInfo } from '@/api/user';
+import { logout as userLogout } from '@/api/user';
 
-import { login as userLogin, LoginData } from '@/api/auth/auth';
+import { userLogin, getUserInfo, LoginData } from '@/api/auth/auth';
+
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
-import { UserState } from './types';
+import { UserInfo } from '@/store/modules/user/UserInfo';
 import useAppStore from '../app';
 
 const useUserStore = defineStore('user', {
-  state: (): UserState => ({
-    name: undefined,
-    avatar: undefined,
-    job: undefined,
-    organization: undefined,
-    location: undefined,
-    email: undefined,
-    introduction: undefined,
-    personalWebsite: undefined,
-    jobName: undefined,
-    organizationName: undefined,
-    locationName: undefined,
-    phone: undefined,
-    registrationDate: undefined,
-    accountId: undefined,
-    certification: undefined,
-    role: '',
+  state: (): UserInfo => ({
+    id: '1',
+    createTime: '2017-11-17T08:56:59.000+00:00',
+    updateTime: '2019-01-08T09:05:47.000+00:00',
+    username: 'admin',
+    password: '$2a$10$TJkwVdlpbHKnV45.nBxbgeFHmQRmyWlshg94lFu2rKxVtT2OMniDO',
+    nickname: '**员',
+    headImgUrl:
+      'http://rhsvhgzxz.hd-bkt.clouddn.com/2022/09/07/0F1D7905452E44729C170E68EEA9252A.jpeg',
+    mobile: '18888888888',
+    sex: 0,
+    enabled: true,
+    type: 'APP',
+    openId: 'o-GSeppS8mNI6yFBgrScoQSbmqBtvAq',
+    roles: [
+      {
+        id: '1',
+        createTime: '2017-11-17T08:56:59.000+00:00',
+        updateTime: '2018-09-19T01:39:10.000+00:00',
+        code: 'ADMIN',
+        name: '管理员',
+        userId: null,
+      },
+    ],
+    roleId: null,
+    oldPassword: null,
+    newPassword: null,
+    permissions: [
+      'user-btn-add',
+      'user-list',
+      'user-roles',
+      'user-btn-export',
+      'user-btn-import',
+    ],
+    userId: 'o-GSeppS8mNI6yFBgrScoQSbmqBtvAq',
+    accountNonExpired: true,
+    credentialsNonExpired: true,
+    accountNonLocked: true,
+    del: false,
   }),
 
   getters: {
-    userInfo(state: UserState): UserState {
+    userInfo(state: UserInfo): UserInfo {
       return { ...state };
     },
   },
@@ -36,12 +59,12 @@ const useUserStore = defineStore('user', {
   actions: {
     switchRoles() {
       return new Promise((resolve) => {
-        this.role = this.role === 'user' ? 'admin' : 'user';
-        resolve(this.role);
+        // this.role = this.role === 'user' ? 'admin' : 'user';
+        // resolve(this.role);
       });
     },
     // Set user's information
-    setInfo(partial: Partial<UserState>) {
+    setInfo(partial: Partial<UserInfo>) {
       this.$patch(partial);
     },
 
@@ -54,18 +77,16 @@ const useUserStore = defineStore('user', {
     async info() {
       const res = await getUserInfo();
 
-      this.setInfo(res.data);
+      this.setInfo(res.datas);
     },
 
     // Login
     async login(loginForm: LoginData) {
       try {
-        debugger;
         const res = await userLogin(loginForm);
         setToken(res.datas.access_token);
       } catch (err) {
         clearToken();
-        console.log('login setToken');
         throw err;
       }
     },

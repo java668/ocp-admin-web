@@ -1,6 +1,7 @@
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import queryString from 'query-string';
 import { HttpResponse } from '@/types/global';
+import { UserInfo } from '@/store/modules/user/UserInfo';
 
 type GrantType = 'password_code' | 'password';
 
@@ -30,7 +31,7 @@ const { VITE_API_CLIENT_ID, VITE_API_CLIENT_SECRET } = import.meta.env;
  * 用户
  * @param loginData
  */
-export function login(loginData: LoginData) {
+export function userLogin(loginData: LoginData) {
   const client = window.btoa(`${VITE_API_CLIENT_ID}:${VITE_API_CLIENT_SECRET}`);
   const Authorization = `Basic ${client}`;
 
@@ -47,4 +48,13 @@ export function login(loginData: LoginData) {
       Authorization,
     },
   });
+}
+
+/**
+ * 获取用户信息
+ */
+export function getUserInfo() {
+  return axios.get<UserInfo, HttpResponse<UserInfo>, any>(
+    '/api-user/users/current'
+  );
 }

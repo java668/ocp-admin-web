@@ -63,10 +63,11 @@ axios.interceptors.response.use(
   },
 
   (error) => {
+    const message = error.response.data.msg || '请求错误';
     Message.error({
-      content: error.msg || 'Request Error',
+      content: message,
       duration: 5 * 1000,
     });
-    return Promise.reject(error);
+    return Promise.reject(message);
   }
 );

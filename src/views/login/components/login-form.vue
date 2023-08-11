@@ -159,10 +159,10 @@
         loginConfig.value.username = rememberPassword ? username : '';
         loginConfig.value.password = rememberPassword ? password : '';
       } catch (err) {
-        errorMessage.value = (err as Error).message;
-        console.log('catch', loading.value);
+        debugger;
+        errorMessage.value = err as string;
       } finally {
-        console.log('finally', loading.value);
+        handleRefreshCaptcha();
         setLoading(false);
       }
     }

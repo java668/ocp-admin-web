@@ -159,7 +159,6 @@
         loginConfig.value.username = rememberPassword ? username : '';
         loginConfig.value.password = rememberPassword ? password : '';
       } catch (err) {
-        debugger;
         errorMessage.value = err as string;
       } finally {
         handleRefreshCaptcha();

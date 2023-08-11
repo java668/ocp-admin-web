@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { User, UserPage, UserPageParam } from '@/types/system/User';
+import { UserRecord, UserPage, UserParam } from '@/types/system/User';
 import { HttpResponse } from '@/types/global';
 
-export function addUser(data: User) {
+export function addUser(data: UserRecord) {
   return axios.post('/api-user/users/saveOrUpdate', data);
 }
 
@@ -10,12 +10,12 @@ export function deleteUser(userId: number) {
   return axios.delete(`/api-user/users/${userId}`);
 }
 
-export function updateUser(data: User) {
+export function updateUser(data: UserRecord) {
   return axios.post('/api-user/users/saveOrUpdate', data);
 }
 
-export function page(params: UserPageParam) {
-  return axios.get<UserPage[], HttpResponse<UserPage[]>, UserPageParam>(
+export function page(params: UserParam) {
+  return axios.get<UserPage[], HttpResponse<UserPage[]>, UserParam>(
     '/api-user/users',
     {
       params,

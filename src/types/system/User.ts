@@ -1,4 +1,4 @@
-export interface User {
+export interface UserRecord {
   id?: string;
   username: string;
   nickname: string;
@@ -7,7 +7,7 @@ export interface User {
   roleId: string;
 }
 
-export interface UserPageParam {
+export interface UserParam {
   username?: string;
   nickname?: string;
   mobile?: string;

@@ -5,48 +5,21 @@
       <a-form label-align="right" auto-label-width :model="form" class="form">
         <a-row :gutter="16" wrap>
           <a-col :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
-            <a-form-item field="value1" label="姓名">
-              <a-input v-model="form.value1" placeholder="请输入姓名" />
+            <a-form-item field="value1" label="账号">
+              <a-input v-model="form.value1" placeholder="请输入账号" />
             </a-form-item>
           </a-col>
           <a-col :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
-            <a-form-item field="value2" label="手机">
+            <a-form-item field="value2" label="用户名">
+              <a-input v-model="form.value2" placeholder="请输入用户名" />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
+            <a-form-item field="value2" label="手机号码">
               <a-input v-model="form.value2" placeholder="请输入手机号码" />
             </a-form-item>
           </a-col>
-          <a-col v-show="collapsed" :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
-            <a-form-item field="value3" label="类型">
-              <a-select placeholder="请选择">
-                <a-option>北京</a-option>
-                <a-option>上海</a-option>
-                <a-option>广州</a-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col v-show="collapsed" :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
-            <a-form-item field="value3" label="时间">
-              <a-date-picker
-                v-model="form.value3"
-                show-time
-                placeholder="请选择创建时间"
-                style="width: 100%"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col v-show="collapsed" :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
-            <a-form-item field="value4" label="状态">
-              <a-select placeholder="请选择">
-                <a-option>开启</a-option>
-                <a-option>关闭</a-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col v-show="collapsed" :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
-            <a-form-item field="value5" label="地址">
-              <a-input v-model="form.value5" placeholder="请输入查询地址" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
+          <a-col :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
             <a-space>
               <a-button type="primary" status="success">
                 <template #icon>
@@ -59,17 +32,6 @@
                   <icon-refresh />
                 </template>
                 <template #default>重置</template>
-              </a-button>
-              <a-button
-                type="text"
-                class="collapsed-btn"
-                @click="collapsed = !collapsed"
-              >
-                <template #icon>
-                  <icon-up v-if="collapsed" />
-                  <icon-down v-else />
-                </template>
-                <template #default>{{ !collapsed ? '展开' : '收起' }}</template>
               </a-button>
             </a-space>
           </a-col>
@@ -152,102 +114,125 @@
       </a-row>
       <a-table
         :columns="columns"
-        :data="data"
+        :loading="loading"
+        :data="userList"
         :bordered="false"
-        :scroll="{ x: 2000, y: '100%' }"
-      />
+        :scroll="{ y: '100%' }"
+        :row-selection="{
+          type: 'checkbox',
+          showCheckedAll: true,
+          onlyCurrent: false,
+        }"
+        :pagination="{
+          showTotal: true,
+          showPageSize: true,
+          total: total,
+          current: queryParams.page,
+        }"
+      >
+        <template #operations>
+          <a-space>
+            <a-button status="success" size="mini">查看</a-button>
+            <a-button status="warning" size="mini">修改</a-button>
+            <a-button status="danger" size="mini">删除</a-button>
+          </a-space>
+        </template>
+      </a-table>
     </a-card>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive } from 'vue';
-  import { TableColumnData } from '@arco-design/web-vue/es/table/interface';
+  import { ref, reactive, toRefs } from 'vue';
+  import { UserRecord, UserPage, UserParam } from '@/types/system/User';
+  import { page } from '@/api/system/user';
 
-  const form = reactive({
-    value1: '',
-    value2: '',
-    value3: '',
-    value4: '',
-    value5: '',
+  const userList = ref<UserPage[]>([]);
+  const total = ref(0);
+  const loading = ref(false);
+
+  const data = reactive({
+    // 查询参数
+    queryParams: {
+      username: undefined,
+      nickname: undefined,
+      mobile: undefined,
+      page: 1,
+      limit: 10,
+    },
+    // 表单数据
+    form: {} as UserRecord,
+    // 表单验证规则
+    rules: {
+      username: [{ required: true, message: '请输入用户名' }],
+      nickname: [{ required: true, message: '请输入昵称' }],
+      deptId: [{ required: true, message: '请选择所属部门' }],
+      roleIds: [{ required: true, message: '请选择所属角色' }],
+    },
   });
-  const collapsed = ref(false);
+  const { queryParams, form, rules } = toRefs(data);
 
   const columns = [
     {
       title: '用户编号',
-      dataIndex: 'name',
+      dataIndex: 'id',
+      width: 100,
     },
     {
       title: '账号',
-      dataIndex: 'salary',
+      dataIndex: 'nickname',
+      width: 100,
     },
     {
       title: '用户名',
-      dataIndex: 'address',
+      dataIndex: 'username',
+      ellipsis: true,
+      tooltip: true,
+      width: 100,
     },
     {
       title: '手机号',
-      dataIndex: 'email',
-    },
-    {
-      title: '性别',
-      dataIndex: 'email1',
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'email2',
-    },
-    {
-      title: 'Email3',
-      dataIndex: 'email3',
+      dataIndex: 'mobile',
       ellipsis: true,
       tooltip: true,
     },
     {
-      title: 'Email4',
-      dataIndex: 'email4',
+      title: '性别',
+      dataIndex: 'sex',
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      ellipsis: true,
+      tooltip: true,
+    },
+    {
+      title: '操作',
+      dataIndex: 'operations',
+      slotName: 'operations',
+      align: 'center',
     },
   ];
-  const data = reactive([
-    {
-      key: '1',
-      name: 'Jane Doe',
-      salary: 23000,
-      address: '32 Park Road, London',
-      email: 'jane.doe@example.com',
-    },
-    {
-      key: '2',
-      name: 'Alisa Ross',
-      salary: 25000,
-      address: '35 Park Road, London',
-      email: 'alisa.ross@example.com',
-    },
-    {
-      key: '3',
-      name: 'Kevin Sandra',
-      salary: 22000,
-      address: '31 Park Road, London',
-      email: 'kevin.sandra@example.com',
-    },
-    {
-      key: '4',
-      name: 'Ed Hellen',
-      salary: 17000,
-      address: '42 Park Road, London',
-      email: 'ed.hellen@example.com',
-    },
-    {
-      key: '5',
-      name: 'William Smith',
-      salary: 27000,
-      address: '62 Park Road, London',
-      email: 'william.smith@example.com',
-      email3:
-        'william.smith@example.comwilliam.smith@example.comwilliam.smith@example.comwilliam.smith@example.comwilliam.smith@example.com',
-    },
-  ]);
+
+  /**
+   * 查询列表
+   *
+   * @param params 查询参数
+   */
+  const getList = async (params: UserParam = { ...queryParams.value }) => {
+    loading.value = true;
+    const res = await page(params);
+    try {
+      userList.value = res.data;
+      total.value = res.count;
+    } catch (err) {
+      console.error(err);
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  getList();
 
   const search = () => {};
   const handleSelectDensity = () => {};

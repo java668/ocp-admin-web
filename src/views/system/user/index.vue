@@ -84,20 +84,6 @@
               </template>
               删除
             </a-button>
-            <a-upload action="/">
-              <template #upload-button>
-                <a-button>
-                  {{ $t('searchTable.operation.import') }}
-                </a-button>
-              </template>
-            </a-upload>
-            <a-upload action="/">
-              <template #upload-button>
-                <a-button>
-                  {{ $t('searchTable.operation.download') }}
-                </a-button>
-              </template>
-            </a-upload>
           </a-space>
         </a-col>
         <a-col
@@ -107,6 +93,12 @@
           <a-button-group>
             <a-button @click="handleQuery">
               <template #icon><icon-refresh size="18" /></template>
+            </a-button>
+            <a-button @click="$message.warning('功能尚在开发中')">
+              <template #icon><icon-import size="18" /></template>
+            </a-button>
+            <a-button @click="$message.warning('功能尚在开发中')">
+              <template #icon><icon-download size="18" /></template>
             </a-button>
             <a-button @click="$message.warning('功能尚在开发中')">
               <template #icon><icon-line-height size="18" /></template>
@@ -175,7 +167,7 @@
         </template>
       </a-table>
     </a-card>
-    <EditUserModal ref="EditUserModalRef"></EditUserModal>
+    <UserModal ref="UserModalRef"></UserModal>
   </div>
 </template>
 
@@ -185,19 +177,22 @@
   import { deleteUser, page } from '@/api/system/user';
   import useLoading from '@/hooks/loading';
   import { Modal } from '@arco-design/web-vue';
-  import EditUserModal from './EditUserModal.vue';
+  import UserModal from './UserModal.vue';
 
   const { proxy } = getCurrentInstance() as any;
   const { loading, setLoading } = useLoading(false);
 
+  /**
+   * 列表
+   */
   const userList = ref<UserRecord[]>([]);
   const total = ref(0);
 
   const single = ref(true);
   const multiple = ref(true);
-  const ids = ref<Array<string>>([]);
+  const ids = ref<string[]>([]);
 
-  const EditUserModalRef = ref<InstanceType<typeof EditUserModal>>();
+  const UserModalRef = ref<InstanceType<typeof UserModal>>();
 
   const data = reactive({
     // 查询参数
@@ -282,6 +277,7 @@
       setLoading(false);
     }
   };
+
   /**
    * 查询
    */
@@ -327,18 +323,18 @@
    *
    * @param rowKeys ID 列表
    */
-  const handleSelectionChange = (rowKeys: Array<any>) => {
+  const handleSelectionChange = (rowKeys: string[]) => {
     ids.value = rowKeys;
     single.value = rowKeys.length !== 1;
     multiple.value = !rowKeys.length;
   };
 
   const onAdd = () => {
-    EditUserModalRef.value?.add();
+    UserModalRef.value?.add();
   };
 
   const onEdit = (item: UserRecord) => {
-    EditUserModalRef.value?.edit(item);
+    UserModalRef.value?.edit(item);
   };
 
   /**

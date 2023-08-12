@@ -1,9 +1,11 @@
 <template>
   <a-modal
-    v-model:visible="visible"
     :title="title"
     :title-align="'start'"
+    :visible="visible"
     :mask-closable="false"
+    unmount-on-close
+    render-to-body
     :width="640"
     @ok="handleOk($parent)"
     @cancel="handleCancel($parent)"
@@ -47,7 +49,7 @@
           </a-form-item>
         </a-col>
         <a-col :xs="24" :md="24" :lg="24" :xl="24" :xxl="24">
-          <a-form-item label="所属角色" field="roleIds">
+          <a-form-item label="所属角色" field="roleId">
             <a-select
               v-model="form.roleId"
               :options="roleOptions"
@@ -72,29 +74,44 @@
   import useLoading from '@/hooks/loading';
   import { addUser, updateUser } from '@/api/system/user';
   import { listRole } from '@/api/system/role';
+  import { Phone, UsernameRegex } from '@/utils/regexp';
 
   const { proxy } = getCurrentInstance() as any;
 
+  /**
+   * 初始化表单
+   */
+  const getInitForm = () => ({
+    id: undefined,
+    username: undefined,
+    nickname: undefined,
+    mobile: undefined,
+    sex: 0,
+    roleId: undefined,
+  });
+
   const data = reactive({
     // 表单数据
-    form: {
-      id: undefined,
-      username: undefined,
-      nickname: undefined,
-      mobile: undefined,
-      roleId: undefined,
-    } as UserRecord,
+    form: getInitForm() as UserRecord,
     // 表单验证规则
     rules: {
       username: [
-        { required: true, message: '请输入用户名' },
-        { min: 2, max: 4, message: '长度在 2 - 4个字符' },
+        { required: true, message: '请输入账号' },
+        {
+          minLength: 2,
+          maxLength: 12,
+          message: '账号必须长度在 2 - 12个字符',
+        },
+        { match: UsernameRegex, message: '账号必须由字母、数字或下划线组成' },
       ],
       nickname: [
         { required: true, message: '请输入用户名' },
         { min: 2, max: 4, message: '长度在 2 - 4个字符' },
       ],
-      mobile: [{ required: true, message: '请输入手机号码' }],
+      mobile: [
+        { required: true, message: '请输入手机号码' },
+        { match: Phone, message: '手机号格式不正确' },
+      ],
       roleId: [{ required: true, message: '请选择所属角色' }],
     },
   });
@@ -118,24 +135,21 @@
 
   const add = () => {
     getRoleOptions();
-    form.value = {
-      id: undefined,
-      username: undefined,
-      nickname: undefined,
-      mobile: undefined,
-      roleId: undefined,
-    };
-
+    form.value = getInitForm();
     visible.value = true;
   };
   const edit = (item: UserRecord) => {
     getRoleOptions();
-    form.value = item;
+    Object.assign(form.value, item);
+    form.value.roleId = item.roles?.map((role) => {
+      return role.id;
+    });
     visible.value = true;
   };
 
   const handleCancel = ($parent: any) => {
     visible.value = false;
+    form.value = getInitForm();
     proxy.$refs.formRef?.resetFields();
     $parent.getList();
   };
@@ -143,16 +157,25 @@
   const handleOk = ($parent: any) => {
     proxy.$refs.formRef.validate((valid: any) => {
       if (!valid) {
+        form.value.roleId = form.value.roleId.toString();
         if (form.value.id) {
-          updateUser(form.value).then((res) => {
-            handleCancel($parent);
-            proxy.$message.success(res.msg);
-          });
+          updateUser(form.value)
+            .then((res) => {
+              handleCancel($parent);
+              proxy.$message.success(res.msg);
+            })
+            .catch((err) => {
+              throw new Error(err);
+            });
         } else {
-          addUser(form.value).then((res) => {
-            handleCancel($parent);
-            proxy.$message.success(res.msg);
-          });
+          addUser(form.value)
+            .then((res) => {
+              handleCancel($parent);
+              proxy.$message.success(res.msg);
+            })
+            .catch((err) => {
+              throw new Error(err);
+            });
         }
         $parent.getList();
       }

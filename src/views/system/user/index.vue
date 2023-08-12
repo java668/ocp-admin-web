@@ -91,20 +91,26 @@
           style="display: flex; align-items: center; justify-content: end"
         >
           <a-button-group>
-            <a-button @click="handleQuery">
-              <template #icon><icon-refresh size="18" /></template>
+            <a-tooltip content="刷新" :mini="true">
+              <a-button @click="handleQuery">
+                <template #icon><icon-refresh size="20" /></template>
+              </a-button>
+            </a-tooltip>
+            <a-tooltip content="导出" :mini="true">
+              <a-button @click="$message.warning('功能尚在开发中')">
+                <template #icon><icon-import size="20" /></template>
+              </a-button>
+            </a-tooltip>
+            <a-tooltip content="导入" :mini="true">
+              <a-button @click="$message.warning('功能尚在开发中')">
+                <template #icon><icon-download size="20" /></template>
+              </a-button>
+            </a-tooltip>
+            <a-button @click="$message.warning('功能尚在开发中')">
+              <template #icon><icon-line-height size="20" /></template>
             </a-button>
             <a-button @click="$message.warning('功能尚在开发中')">
-              <template #icon><icon-import size="18" /></template>
-            </a-button>
-            <a-button @click="$message.warning('功能尚在开发中')">
-              <template #icon><icon-download size="18" /></template>
-            </a-button>
-            <a-button @click="$message.warning('功能尚在开发中')">
-              <template #icon><icon-line-height size="18" /></template>
-            </a-button>
-            <a-button @click="$message.warning('功能尚在开发中')">
-              <template #icon><icon-settings size="18" /></template>
+              <template #icon><icon-settings size="20" /></template>
             </a-button>
           </a-button-group>
         </a-col>
@@ -148,14 +154,17 @@
           <a-tag v-else color="red">停用</a-tag>
         </template>
         <template #operations="{ record }">
-          <a-space>
+          <a-space :size="2">
             <a-button status="success" size="mini" @click="onEdit(record)"
               >修改</a-button
+            >
+            <a-button status="warning" size="mini" @click="onEdit(record)"
+              >重置密码</a-button
             >
             <a-popconfirm
               content="确定要删除当前选中的数据吗？"
               type="warning"
-              position="tr"
+              position="top"
               @ok="handleDelete(record.id)"
             >
               <a-button status="danger" size="mini" title="删除">
@@ -177,6 +186,7 @@
   import { deleteUser, page } from '@/api/system/user';
   import useLoading from '@/hooks/loading';
   import { Modal } from '@arco-design/web-vue';
+  import { toNumber } from 'lodash';
   import UserModal from './UserModal.vue';
 
   const { proxy } = getCurrentInstance() as any;
@@ -272,7 +282,7 @@
     const res = await page(params);
     try {
       userList.value = res.data;
-      total.value = res.count;
+      total.value = toNumber(res.count);
     } finally {
       setLoading(false);
     }

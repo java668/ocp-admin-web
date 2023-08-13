@@ -150,8 +150,16 @@
           <a-tag v-else color="red">女</a-tag>
         </template>
         <template #enabled="{ record }">
-          <a-tag v-if="record.enabled" color="arcoblue">启用</a-tag>
-          <a-tag v-else color="red">停用</a-tag>
+          <a-switch
+            v-model="record.enabled"
+            :checked-value="true"
+            :unchecked-value="false"
+            checked-color="#5FB878"
+            unchecked-color="#F53F3F"
+          >
+            <template #checked>ON</template>
+            <template #unchecked>OFF</template>
+          </a-switch>
         </template>
         <template #operations="{ record }">
           <a-space :size="2">
@@ -256,7 +264,7 @@
       title: '状态',
       dataIndex: 'enabled',
       slotName: 'enabled',
-      width: 80,
+      width: 100,
     },
     {
       title: '创建时间',

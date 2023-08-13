@@ -66,7 +66,7 @@
               type="primary"
               status="success"
               :disabled="single"
-              @click="onEdit"
+              @click="onEdit(ids[0])"
             >
               <template #icon>
                 <icon-edit />
@@ -156,6 +156,7 @@
             :unchecked-value="false"
             checked-color="#5FB878"
             unchecked-color="#F53F3F"
+            @change="handleChangeStatus(record)"
           >
             <template #checked>ON</template>
             <template #unchecked>OFF</template>
@@ -163,10 +164,13 @@
         </template>
         <template #operations="{ record }">
           <a-space :size="2">
-            <a-button status="success" size="mini" @click="onEdit(record)"
+            <a-button status="success" size="mini" @click="onEdit(record.id)"
               >修改</a-button
             >
-            <a-button status="warning" size="mini" @click="onEdit(record)"
+            <a-button
+              status="warning"
+              size="mini"
+              @click="handleRestPass(record.id)"
               >重置密码</a-button
             >
             <a-popconfirm
@@ -177,7 +181,7 @@
             >
               <a-button status="danger" size="mini" title="删除">
                 <template #icon><icon-delete /></template>
-                <template #default>删除</template>
+                删除
               </a-button>
             </a-popconfirm>
           </a-space>
@@ -191,7 +195,7 @@
 <script lang="ts" setup>
   import { ref, reactive, toRefs, getCurrentInstance } from 'vue';
   import { UserRecord, UserParam } from '@/types/system/User';
-  import { deleteUser, page } from '@/api/system/user';
+  import { deleteUser, page, restPass, updateEnabled } from '@/api/system/user';
   import useLoading from '@/hooks/loading';
   import { Modal } from '@arco-design/web-vue';
   import { toNumber } from 'lodash';
@@ -342,6 +346,7 @@
    * @param rowKeys ID 列表
    */
   const handleSelectionChange = (rowKeys: string[]) => {
+    debugger;
     ids.value = rowKeys;
     single.value = rowKeys.length !== 1;
     multiple.value = !rowKeys.length;
@@ -351,8 +356,9 @@
     UserModalRef.value?.add();
   };
 
-  const onEdit = (item: UserRecord) => {
-    UserModalRef.value?.edit(item);
+  const onEdit = (userId: string) => {
+    debugger;
+    UserModalRef.value?.edit(userId);
   };
 
   /**
@@ -372,6 +378,33 @@
         },
       });
     }
+  };
+
+  const handleRestPass = (id: number) => {
+    restPass(id)
+      .then((res) => {
+        proxy.$message.success(res.datas.msg);
+      })
+      .catch((err) => {
+        proxy.$message.success(err);
+      });
+  };
+
+  const handleChangeStatus = ({
+    id,
+    enabled,
+  }: {
+    id: number;
+    enabled: boolean;
+  }) => {
+    updateEnabled({ id, enabled })
+      .then((res) => {
+        proxy.$message.success('操作成功');
+        getList();
+      })
+      .catch((err) => {
+        proxy.$message.success(err);
+      });
   };
 
   /**

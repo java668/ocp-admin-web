@@ -72,7 +72,7 @@
   import { UserRecord } from '@/types/system/User';
   import { RoleRecord } from '@/types/system/Role';
   import useLoading from '@/hooks/loading';
-  import { addUser, updateUser } from '@/api/system/user';
+  import { getUser, addUser, updateUser } from '@/api/system/user';
   import { listRole } from '@/api/system/role';
   import { Phone, UsernameRegex } from '@/utils/regexp';
 
@@ -138,8 +138,9 @@
     form.value = getInitForm();
     visible.value = true;
   };
-  const edit = (item: UserRecord) => {
+  const edit = async (userId: string) => {
     getRoleOptions();
+    const item = (await getUser(userId)) as UserRecord;
     Object.assign(form.value, item);
     form.value.roleId = item.roles?.map((role) => {
       return role.id;

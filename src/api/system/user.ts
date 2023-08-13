@@ -22,6 +22,15 @@ export function updateUser(data: UserRecord) {
   );
 }
 
+export function getUser(userId: number) {
+  return axios.get<UserRecord, HttpResponse<UserRecord>>(
+    '/api-user/users-anon/userId',
+    {
+      params: { userId },
+    }
+  );
+}
+
 export function page(params: UserParam) {
   return axios.get<UserRecord[], HttpResponse<UserRecord[]>, UserParam>(
     '/api-user/users',
@@ -29,4 +38,16 @@ export function page(params: UserParam) {
       params,
     }
   );
+}
+
+export function restPass(userId: number) {
+  return axios.put<any, HttpResponse<any>, UserRecord>(
+    `/api-user/users/${userId}/password`
+  );
+}
+
+export function updateEnabled(params: { id: number; enabled: boolean }) {
+  return axios.get<any, HttpResponse<any>>(`/api-user/users/updateEnabled`, {
+    params,
+  });
 }

@@ -1,9 +1,18 @@
-import { RoleRecord } from '@/types/system/Role';
+import { RoleParam, RoleRecord } from '@/types/system/Role';
 import axios from 'axios';
 import { HttpResponse } from '@/types/global';
 
 export function addRole(data: RoleRecord) {
   return axios.post('/api-user/users/saveOrUpdate', data);
+}
+
+export function page(params: RoleParam) {
+  return axios.get<RoleRecord[], HttpResponse<RoleRecord[]>, RoleParam>(
+    '/api-user/roles',
+    {
+      params,
+    }
+  );
 }
 
 export function listRole() {

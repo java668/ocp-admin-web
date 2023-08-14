@@ -2,16 +2,31 @@
   <div class="container">
     <Breadcrumb :items="['menu.system', 'menu.system.role']" />
     <a-card>
-      <a-form label-align="right" auto-label-width :model="form" class="form">
+      <a-form
+        label-align="right"
+        auto-label-width
+        :model="queryParams"
+        class="form"
+      >
         <a-row :gutter="16" wrap>
           <a-col :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
             <a-form-item field="value1" label="所属应用">
-              <a-input v-model="form.value1" placeholder="请输入所属应用" />
+              <a-select
+                v-model="queryParams.tenantId"
+                :options="appOptions"
+                :field-names="{ value: 'id', label: 'name' }"
+                placeholder="请输入所属应用"
+                allow-search
+                allow-clear
+              />
             </a-form-item>
           </a-col>
           <a-col :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
             <a-form-item field="value2" label="角色名称">
-              <a-input v-model="form.value2" placeholder="请输入角色名称" />
+              <a-input
+                v-model="queryParams.name"
+                placeholder="请输入角色名称"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -20,13 +35,13 @@
                 <template #icon>
                   <icon-search />
                 </template>
-                <template #default>查询</template>
+                查询
               </a-button>
               <a-button type="primary" status="warning">
                 <template #icon>
                   <icon-refresh />
                 </template>
-                <template #default>重置</template>
+                重置
               </a-button>
             </a-space>
           </a-col>
@@ -38,38 +53,34 @@
             <a-row class="toolbar">
               <a-col :span="12">
                 <a-space>
-                  <a-button type="primary">
+                  <a-button type="primary" @click="onAdd">
                     <template #icon>
                       <icon-plus />
                     </template>
-                    {{ $t('searchTable.operation.create') }}
+                    新增
                   </a-button>
-                  <a-button type="primary" status="success">
+                  <a-button
+                    type="primary"
+                    status="success"
+                    :disabled="single"
+                    @click="onEdit(ids[0])"
+                  >
                     <template #icon>
                       <icon-edit />
                     </template>
                     修改
                   </a-button>
-                  <a-button type="primary" status="danger">
+                  <a-button
+                    type="primary"
+                    status="danger"
+                    :disabled="multiple"
+                    @click="$message.warning('功能尚在开发中')"
+                  >
                     <template #icon>
                       <icon-delete />
                     </template>
                     删除
                   </a-button>
-                  <a-upload action="/">
-                    <template #upload-button>
-                      <a-button>
-                        {{ $t('searchTable.operation.import') }}
-                      </a-button>
-                    </template>
-                  </a-upload>
-                  <a-upload action="/">
-                    <template #upload-button>
-                      <a-button>
-                        {{ $t('searchTable.operation.download') }}
-                      </a-button>
-                    </template>
-                  </a-upload>
                 </a-space>
               </a-col>
               <a-col
@@ -77,39 +88,115 @@
                 style="display: flex; align-items: center; justify-content: end"
               >
                 <a-button-group>
-                  <a-button>
-                    <template #icon><icon-refresh size="18" /></template>
+                  <a-button title="刷新" @click="handleQuery">
+                    <template #icon>
+                      <icon-refresh size="20" />
+                    </template>
                   </a-button>
-                  <a-button>
-                    <template #icon><icon-line-height size="18" /></template>
+                  <a-button
+                    title="导出"
+                    @click="$message.warning('功能尚在开发中')"
+                  >
+                    <template #icon>
+                      <icon-import size="20" />
+                    </template>
                   </a-button>
-                  <a-button>
-                    <template #icon><icon-settings size="18" /></template>
+                  <a-button
+                    title="导入"
+                    @click="$message.warning('功能尚在开发中')"
+                  >
+                    <template #icon>
+                      <icon-download size="20" />
+                    </template>
+                  </a-button>
+                  <a-button
+                    title="导入"
+                    @click="$message.warning('功能尚在开发中')"
+                  >
+                    <template #icon>
+                      <icon-line-height size="20" />
+                    </template>
+                  </a-button>
+                  <a-button
+                    title="导入"
+                    @click="$message.warning('功能尚在开发中')"
+                  >
+                    <template #icon>
+                      <icon-settings size="20" />
+                    </template>
                   </a-button>
                 </a-button-group>
-                <!--          <a-tooltip :content="$t('searchTable.actions.refresh')">-->
-                <!--            <div class="action-icon" @click="search"-->
-                <!--              ><icon-refresh size="18"-->
-                <!--            /></div>-->
-                <!--          </a-tooltip>-->
-                <!--          <a-dropdown @select="handleSelectDensity">-->
-                <!--            <a-tooltip :content="$t('searchTable.actions.density')">-->
-                <!--              <div class="action-icon"><icon-line-height size="18" /></div>-->
-                <!--            </a-tooltip>-->
-                <!--            <template #content>-->
-                <!--              &lt;!&ndash;              <a-doption&ndash;&gt;-->
-                <!--              &lt;!&ndash;                v-for="item in densityList"&ndash;&gt;-->
-                <!--              &lt;!&ndash;                :key="item.value"&ndash;&gt;-->
-                <!--              &lt;!&ndash;                :value="item.value"&ndash;&gt;-->
-                <!--              &lt;!&ndash;                :class="{ active: item.value === size }"&ndash;&gt;-->
-                <!--              &lt;!&ndash;              >&ndash;&gt;-->
-                <!--              &lt;!&ndash;                <span>{{ item.name }}</span>&ndash;&gt;-->
-                <!--              &lt;!&ndash;              </a-doption>&ndash;&gt;-->
-                <!--            </template>-->
-                <!--          </a-dropdown>-->
               </a-col>
             </a-row>
-            <a-table :columns="columns" :data="data" :bordered="false" />
+            <a-table
+              ref="tableRef"
+              :data="roleList"
+              :row-selection="{
+                type: 'checkbox',
+                showCheckedAll: true,
+                onlyCurrent: false,
+              }"
+              :pagination="{
+                showTotal: true,
+                showPageSize: true,
+                total: total,
+                current: queryParams.page,
+              }"
+              row-key="id"
+              :bordered="false"
+              :stripe="true"
+              :loading="loading"
+              @page-change="handlePageChange"
+              @page-size-change="handlePageSizeChange"
+              @select="handleSelectionChange"
+            >
+              <template #columns>
+                <a-table-column title="ID" data-index="id" />
+                <a-table-column title="角色名">
+                  <template #cell="{ record }">
+                    <a-link @click="toDetail(record.id)"
+                      >{{ record.name }}
+                    </a-link>
+                  </template>
+                </a-table-column>
+                <a-table-column title="角色编码" data-index="code" />
+                <a-table-column title="创建时间">
+                  <template #cell="{ record }">
+                    {{ record.createTime }}
+                  </template>
+                </a-table-column>
+                <a-table-column title="操作" align="center" fixed="right">
+                  <template #cell="{ record }">
+                    <a-button
+                      type="text"
+                      size="small"
+                      title="修改"
+                      @click="toUpdate(record.id)"
+                    >
+                      <template #icon>
+                        <icon-edit />
+                      </template>
+                    </a-button>
+                    <a-popconfirm
+                      content="确定要删除当前选中的数据吗？"
+                      type="warning"
+                      @ok="handleDelete([record.id])"
+                    >
+                      <a-button
+                        type="text"
+                        size="small"
+                        title="删除"
+                        :disabled="record.disabled"
+                      >
+                        <template #icon>
+                          <icon-delete />
+                        </template>
+                      </a-button>
+                    </a-popconfirm>
+                  </template>
+                </a-table-column>
+              </template>
+            </a-table>
           </a-card>
         </a-grid-item>
         <a-grid-item :span="8">
@@ -126,63 +213,76 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive } from 'vue';
+  import { ref, reactive, toRefs } from 'vue';
+  import useLoading from '@/hooks/loading';
+  import { RoleParam, RoleRecord } from '@/types/system/Role';
+  import { listRole, page } from '@/api/system/role';
+  import { toNumber } from 'lodash';
 
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
+  const { loading, setLoading } = useLoading(false);
+
+  const roleList = ref<RoleRecord[]>([]);
+  const total = ref(0);
+  const single = ref(true);
+  const multiple = ref(true);
+  const ids = ref<string[]>([]);
+  const appOptions = ref<RoleRecord[]>([]);
+  const defaultApp = ref(0);
+
+  const data = reactive({
+    // 查询参数
+    queryParams: {
+      tenantId: undefined,
+      name: undefined,
+      page: 1,
+      limit: 10,
     },
-    {
-      title: 'Salary',
-      dataIndex: 'salary',
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-    },
-  ];
-  const data = reactive([
-    {
-      key: '1',
-      name: 'Jane Doe',
-      salary: 23000,
-      address: '32 Park Road, London',
-      email: 'jane.doe@example.com',
-    },
-    {
-      key: '2',
-      name: 'Alisa Ross',
-      salary: 25000,
-      address: '35 Park Road, London',
-      email: 'alisa.ross@example.com',
-    },
-    {
-      key: '3',
-      name: 'Kevin Sandra',
-      salary: 22000,
-      address: '31 Park Road, London',
-      email: 'kevin.sandra@example.com',
-    },
-    {
-      key: '4',
-      name: 'Ed Hellen',
-      salary: 17000,
-      address: '42 Park Road, London',
-      email: 'ed.hellen@example.com',
-    },
-    {
-      key: '5',
-      name: 'William Smith',
-      salary: 27000,
-      address: '62 Park Road, London',
-      email: 'william.smith@example.com',
-    },
-  ]);
+  });
+
+  const { queryParams } = toRefs(data);
+
+  const getAppOptions = async () => {
+    setLoading(true);
+    const res = await listRole();
+    try {
+      roleList.value = res.data;
+      total.value = toNumber(res.count);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * 查询列表
+   *
+   * @param params 查询参数
+   */
+  const getList = async (params: RoleParam = { ...queryParams.value }) => {
+    setLoading(true);
+    const res = await page(params);
+    try {
+      roleList.value = res.data;
+      total.value = toNumber(res.count);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * 查询
+   */
+  getList();
+
+  const onAdd = () => {};
+  const onEdit = () => {};
+  const handleQuery = () => {};
+
+  const handlePageChange = () => {};
+  const handlePageSizeChange = () => {};
+  const handleSelectionChange = () => {};
+  const toDetail = () => {};
+  const toUpdate = () => {};
+  const handleDelete = () => {};
 
   const treeData = [
     {

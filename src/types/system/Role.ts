@@ -1,5 +1,5 @@
 export interface RoleParam {
-  tenantId?: string;
+  tenantId?: string | undefined;
   mobile?: string;
   page: number;
   limit: number;

@@ -14,8 +14,9 @@
               <a-select
                 v-model="queryParams.tenantId"
                 :options="appOptions"
-                :field-names="{ value: 'id', label: 'name' }"
+                :field-names="{ value: 'clientId', label: 'clientName' }"
                 placeholder="请输入所属应用"
+                :loading="clientLoading"
                 allow-search
                 allow-clear
               />
@@ -216,18 +217,21 @@
   import { ref, reactive, toRefs } from 'vue';
   import useLoading from '@/hooks/loading';
   import { RoleParam, RoleRecord } from '@/types/system/Role';
-  import { listRole, page } from '@/api/system/role';
+  import { ClientRecord } from '@/types/system/Client';
+  import { page } from '@/api/system/role';
+  import { listClient } from '@/api/system/client';
   import { toNumber } from 'lodash';
 
   const { loading, setLoading } = useLoading(false);
+  const { loading: clientLoading, setLoading: setClientLoading } =
+    useLoading(false);
 
   const roleList = ref<RoleRecord[]>([]);
   const total = ref(0);
   const single = ref(true);
   const multiple = ref(true);
   const ids = ref<string[]>([]);
-  const appOptions = ref<RoleRecord[]>([]);
-  const defaultApp = ref(0);
+  const appOptions = ref<ClientRecord[]>([]);
 
   const data = reactive({
     // 查询参数
@@ -236,19 +240,22 @@
       name: undefined,
       page: 1,
       limit: 10,
-    },
+    } as RoleParam,
   });
 
   const { queryParams } = toRefs(data);
 
   const getAppOptions = async () => {
-    setLoading(true);
-    const res = await listRole();
+    setClientLoading(true);
+    const res = await listClient();
     try {
-      roleList.value = res.data;
-      total.value = toNumber(res.count);
+      appOptions.value = res.data;
+      debugger;
+      if (res.data.length) {
+        queryParams.value.tenantId = res.data[0].clientId as string;
+      }
     } finally {
-      setLoading(false);
+      setClientLoading(false);
     }
   };
 
@@ -268,10 +275,15 @@
     }
   };
 
+  const init = () => {
+    getAppOptions();
+    getList();
+  };
+
   /**
    * 查询
    */
-  getList();
+  init();
 
   const onAdd = () => {};
   const onEdit = () => {};

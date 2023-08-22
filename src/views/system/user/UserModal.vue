@@ -157,6 +157,7 @@
 
   const handleOk = ($parent: any) => {
     proxy.$refs.formRef.validate((valid: any) => {
+      debugger;
       if (!valid) {
         form.value.roleId = form.value.roleId.toString();
         if (form.value.id) {

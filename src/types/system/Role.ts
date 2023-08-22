@@ -1,14 +1,16 @@
 export interface RoleParam {
   tenantId?: string | undefined;
+  name?: string;
   mobile?: string;
   page: number;
   limit: number;
 }
 export interface RoleRecord {
-  id: string;
-  createTime: string;
-  updateTime: string;
-  code: string;
-  name: string;
+  id?: string | undefined;
+  createTime: string | undefined;
+  updateTime: string | undefined;
+  code: string | undefined;
+  name: string | undefined;
   userId?: any;
+  remarks?: string | undefined;
 }

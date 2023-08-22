@@ -19,7 +19,7 @@
                 :field-names="{ value: 'clientId', label: 'clientName' }"
                 :loading="clientLoading"
                 allow-search
-                allow-clear
+                @change="handleQuery"
               />
             </a-form-item>
           </a-col>
@@ -212,16 +212,17 @@
 
 <script lang="ts" setup>
   import type { Form } from '@arco-design/web-vue';
-  import { ref, reactive, toRefs } from 'vue';
+  import { ref, reactive, toRefs, getCurrentInstance } from 'vue';
   import useLoading from '@/hooks/loading';
   import { RoleParam, RoleRecord } from '@/types/system/Role';
   import { ClientRecord } from '@/types/system/Client';
-  import { page } from '@/api/system/role';
+  import { deleteRole, page } from '@/api/system/role';
   import { listClient } from '@/api/system/client';
   import { toNumber } from 'lodash';
   import RoleModal from './RoleModal.vue';
   import MenuTree from './MenuTree.vue';
 
+  const { proxy } = getCurrentInstance() as any;
   // 列表 loading
   const { loading, setLoading } = useLoading(false);
   // 应用下拉框 loading
@@ -337,15 +338,40 @@
   };
 
   const onAdd = () => {
-    RoleModalRef.value?.add();
+    RoleModalRef.value?.add(queryParams.value.tenantId);
   };
 
   const onEdit = (userId: string) => {
     RoleModalRef.value?.edit(userId);
   };
-  const onDetail = () => {};
-  const onUpdate = () => {};
-  const handleDelete = () => {};
+  const onDetail = async (id: string) => {};
+  const onUpdate = (id: string) => {};
+  const handleDelete = (id: string[]) => {
+    deleteRole(queryParams.value.tenantId as string, id[0])
+      .then((res) => {
+        debugger;
+        proxy.$message.success(res.msg);
+        getList();
+      })
+      .catch((err) => {
+        proxy.$message.success(err);
+      })
+      .finally(() => {
+        // finally
+      });
+
+    // try {
+    //   const res = await deleteRole(queryParams.value.tenantId as string, id[0]);
+    //   proxy.$message.success(res.data.msg);
+    //   getList();
+    // } catch (err) {
+    //   proxy.$message.error(err);
+    // }
+  };
+
+  defineExpose({
+    getList,
+  });
 </script>
 
 <style scoped lang="less">

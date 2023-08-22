@@ -2,8 +2,10 @@ import { RoleParam, RoleRecord } from '@/types/system/Role';
 import axios from 'axios';
 import { HttpResponse } from '@/types/global';
 
-export function addRole(data: RoleRecord) {
-  return axios.post('/api-user/users/saveOrUpdate', data);
+export function addRole(tenantId: string, data: RoleRecord) {
+  return axios.post('/api-user/users/saveOrUpdate', data, {
+    params: { tenantId },
+  });
 }
 
 export function page(params: RoleParam) {

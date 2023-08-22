@@ -3,6 +3,7 @@
     <Breadcrumb :items="['menu.system', 'menu.system.role']" />
     <a-card>
       <a-form
+        ref="queryRef"
         label-align="right"
         auto-label-width
         :model="queryParams"
@@ -10,12 +11,12 @@
       >
         <a-row :gutter="16" wrap>
           <a-col :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
-            <a-form-item field="value1" label="所属应用">
+            <a-form-item field="tenantId" label="所属应用">
               <a-select
                 v-model="queryParams.tenantId"
+                placeholder="请输入所属应用"
                 :options="appOptions"
                 :field-names="{ value: 'clientId', label: 'clientName' }"
-                placeholder="请输入所属应用"
                 :loading="clientLoading"
                 allow-search
                 allow-clear
@@ -23,7 +24,7 @@
             </a-form-item>
           </a-col>
           <a-col :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
-            <a-form-item field="value2" label="角色名称">
+            <a-form-item field="name" label="角色名称">
               <a-input
                 v-model="queryParams.name"
                 placeholder="请输入角色名称"
@@ -32,13 +33,13 @@
           </a-col>
           <a-col :span="12">
             <a-space>
-              <a-button type="primary" status="success">
+              <a-button type="primary" status="success" @click="handleQuery">
                 <template #icon>
                   <icon-search />
                 </template>
                 查询
               </a-button>
-              <a-button type="primary" status="warning">
+              <a-button type="primary" status="warning" @click="resetQuery">
                 <template #icon>
                   <icon-refresh />
                 </template>
@@ -155,7 +156,7 @@
                 <a-table-column title="ID" data-index="id" />
                 <a-table-column title="角色名">
                   <template #cell="{ record }">
-                    <a-link @click="toDetail(record.id)"
+                    <a-link @click="onDetail(record.id)"
                       >{{ record.name }}
                     </a-link>
                   </template>
@@ -172,7 +173,7 @@
                       type="text"
                       size="small"
                       title="修改"
-                      @click="toUpdate(record.id)"
+                      @click="onUpdate(record.id)"
                     >
                       <template #icon>
                         <icon-edit />
@@ -201,19 +202,16 @@
           </a-card>
         </a-grid-item>
         <a-grid-item :span="8">
-          <a-card title="资源分配">
-            <template #extra>
-              <a-link>保存</a-link>
-            </template>
-            <a-tree block-node :data="treeData" />
-          </a-card>
+          <MenuTree ref="MenuTreeRef"></MenuTree>
         </a-grid-item>
       </a-grid>
     </a-card>
+    <RoleModal ref="RoleModalRef"></RoleModal>
   </div>
 </template>
 
 <script lang="ts" setup>
+  import type { Form } from '@arco-design/web-vue';
   import { ref, reactive, toRefs } from 'vue';
   import useLoading from '@/hooks/loading';
   import { RoleParam, RoleRecord } from '@/types/system/Role';
@@ -221,17 +219,25 @@
   import { page } from '@/api/system/role';
   import { listClient } from '@/api/system/client';
   import { toNumber } from 'lodash';
+  import RoleModal from './RoleModal.vue';
+  import MenuTree from './MenuTree.vue';
 
+  // 列表 loading
   const { loading, setLoading } = useLoading(false);
+  // 应用下拉框 loading
   const { loading: clientLoading, setLoading: setClientLoading } =
     useLoading(false);
 
   const roleList = ref<RoleRecord[]>([]);
   const total = ref(0);
+
+  const ids = ref<string[]>([]);
   const single = ref(true);
   const multiple = ref(true);
-  const ids = ref<string[]>([]);
+
   const appOptions = ref<ClientRecord[]>([]);
+  const queryRef = ref<InstanceType<typeof Form>>();
+  const RoleModalRef = ref<InstanceType<typeof RoleModal>>();
 
   const data = reactive({
     // 查询参数
@@ -244,15 +250,18 @@
   });
 
   const { queryParams } = toRefs(data);
-
+  let clientId: string;
+  /**
+   * 应用下拉选项
+   */
   const getAppOptions = async () => {
     setClientLoading(true);
-    const res = await listClient();
     try {
+      const res = await listClient();
       appOptions.value = res.data;
-      debugger;
       if (res.data.length) {
-        queryParams.value.tenantId = res.data[0].clientId as string;
+        clientId = res.data[0].clientId;
+        queryParams.value.tenantId = clientId as string;
       }
     } finally {
       setClientLoading(false);
@@ -266,8 +275,8 @@
    */
   const getList = async (params: RoleParam = { ...queryParams.value }) => {
     setLoading(true);
-    const res = await page(params);
     try {
+      const res = await page(params);
       roleList.value = res.data;
       total.value = toNumber(res.count);
     } finally {
@@ -275,67 +284,68 @@
     }
   };
 
+  /**
+   * 初始化
+   */
   const init = () => {
     getAppOptions();
     getList();
   };
 
   /**
-   * 查询
+   * 初始化查询
    */
   init();
 
-  const onAdd = () => {};
-  const onEdit = () => {};
-  const handleQuery = () => {};
+  const handleQuery = () => {
+    getList();
+  };
 
-  const handlePageChange = () => {};
-  const handlePageSizeChange = () => {};
-  const handleSelectionChange = () => {};
-  const toDetail = () => {};
-  const toUpdate = () => {};
+  /**
+   * 重置表单
+   */
+  const resetQuery = () => {
+    queryRef.value?.resetFields();
+    queryParams.value.tenantId = clientId as string;
+    handleQuery();
+  };
+
+  /**
+   * 切换页码
+   *
+   * @param current 页码
+   */
+  const handlePageChange = (current: number) => {
+    queryParams.value.page = current;
+    getList();
+  };
+
+  /**
+   * 切换每页条数
+   *
+   * @param pageSize 每页条数
+   */
+  const handlePageSizeChange = (pageSize: number) => {
+    queryParams.value.limit = pageSize;
+    getList();
+  };
+
+  const handleSelectionChange = (rowKeys: string[]) => {
+    ids.value = rowKeys;
+    single.value = rowKeys.length !== 1;
+    multiple.value = !rowKeys.length;
+  };
+
+  const onAdd = () => {
+    RoleModalRef.value?.add();
+  };
+
+  const onEdit = (userId: string) => {
+    RoleModalRef.value?.edit(userId);
+  };
+  const onDetail = () => {};
+  const onUpdate = () => {};
   const handleDelete = () => {};
-
-  const treeData = [
-    {
-      title: 'Trunk 0-0',
-      key: '0-0',
-      children: [
-        {
-          title: 'Branch 0-0-0',
-          key: '0-0-0',
-          children: [
-            {
-              title: 'Leaf',
-              key: '0-0-0-0',
-            },
-            {
-              title: 'Leaf',
-              key: '0-0-0-1',
-            },
-          ],
-        },
-        {
-          title: 'Branch 0-0-1',
-          key: '0-0-1',
-          children: [
-            {
-              title: 'Leaf',
-              key: '0-0-1-0',
-            },
-          ],
-        },
-      ],
-    },
-  ];
-
-  const form = reactive({
-    value1: '',
-    value2: '',
-    value3: '',
-    value4: '',
-    value5: '',
-  });
 </script>
 
 <style scoped lang="less">

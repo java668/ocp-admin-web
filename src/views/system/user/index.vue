@@ -346,7 +346,6 @@
    * @param rowKeys ID 列表
    */
   const handleSelectionChange = (rowKeys: string[]) => {
-    debugger;
     ids.value = rowKeys;
     single.value = rowKeys.length !== 1;
     multiple.value = !rowKeys.length;
@@ -357,7 +356,6 @@
   };
 
   const onEdit = (userId: string) => {
-    debugger;
     UserModalRef.value?.edit(userId);
   };
 

@@ -1,45 +1,48 @@
 <template>
-  <a-card title="资源分配">
+  <a-card title="资源分配" body-style="height=100%">
     <template #extra>
-      <a-link>保存</a-link>
+      <a-button type="primary">
+        <template #icon>
+          <icon-plus-circle />
+        </template>
+        <!-- Use the default slot to avoid extra spaces -->
+        <template #default>保存</template>
+      </a-button>
     </template>
-    <a-tree block-node :data="treeData" />
+    <a-scrollbar
+      style="height: 100%; overflow: auto"
+      outer-style="height: 100%"
+    >
+      <a-tree
+        block-node
+        :show-line="true"
+        :check-strictly="false"
+        :checkable="true"
+        :field-names="{
+          key: 'id',
+          title: 'name',
+          children: 'children',
+        }"
+        :data="treeData"
+      />
+    </a-scrollbar>
   </a-card>
 </template>
 
 <script lang="ts" setup>
-  const treeData = [
-    {
-      title: 'Trunk 0-0',
-      key: '0-0',
-      children: [
-        {
-          title: 'Branch 0-0-0',
-          key: '0-0-0',
-          children: [
-            {
-              title: 'Leaf',
-              key: '0-0-0-0',
-            },
-            {
-              title: 'Leaf',
-              key: '0-0-0-1',
-            },
-          ],
-        },
-        {
-          title: 'Branch 0-0-1',
-          key: '0-0-1',
-          children: [
-            {
-              title: 'Leaf',
-              key: '0-0-1-0',
-            },
-          ],
-        },
-      ],
-    },
-  ];
+  import { ref } from 'vue';
+  import listMenu from '@/api/system/menu';
+  import handleTree from '@/utils/menu';
+
+  const treeData = ref([]);
+
+  const getList = async () => {
+    const res = await listMenu();
+    treeData.value = handleTree(res.data, 'id', 'pId');
+    console.log(treeData.value);
+  };
+
+  getList();
 </script>
 
 <style scoped></style>

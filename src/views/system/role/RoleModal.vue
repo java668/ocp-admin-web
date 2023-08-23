@@ -38,8 +38,7 @@
 
 <script setup lang="ts">
   import { computed, getCurrentInstance, reactive, ref, toRefs } from 'vue';
-  import { addRole } from '@/api/system/role';
-  import { addUser, updateUser } from '@/api/system/user';
+  import { addRole, updateRole, getRole } from '@/api/system/role';
   import { OnlyCh, OnlyEn } from '@/utils/regexp';
   import { RoleRecord } from '@/types/system/Role';
   import { Form } from '@arco-design/web-vue';
@@ -89,9 +88,15 @@
     visible.value = true;
   };
 
-  const edit = (id: string, clientId: string) => {
+  const edit = async (id: string, clientId: string) => {
     roleId.value = id;
     tenantId.value = clientId;
+    try {
+      const res = await getRole(id);
+      form.value = res.data;
+    } catch (err) {
+      // error
+    }
     visible.value = true;
   };
 
@@ -107,13 +112,13 @@
       debugger;
       if (!valid) {
         if (form.value.id) {
-          updateUser(form.value)
+          updateRole(tenantId.value, form.value)
             .then((res) => {
               handleCancel($parent);
               proxy.$message.success(res.msg);
             })
             .catch((err) => {
-              throw new Error(err);
+              proxy.$message.success(err);
             });
         } else {
           addRole(tenantId.value, form.value)
@@ -122,7 +127,7 @@
               proxy.$message.success(res.msg);
             })
             .catch((err) => {
-              throw new Error(err);
+              proxy.$message.success(err);
             });
         }
         $parent.getList();

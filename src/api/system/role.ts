@@ -22,6 +22,12 @@ export function updateRole(tenantId: string, data: RoleRecord) {
   );
 }
 
+export function getRole(id: string) {
+  return axios.get<RoleRecord, HttpResponse<RoleRecord>>(
+    `/api-user/roles/${id}`
+  );
+}
+
 export function page(params: RoleParam) {
   return axios.get<RoleRecord[], HttpResponse<RoleRecord[]>, RoleParam>(
     '/api-user/roles',

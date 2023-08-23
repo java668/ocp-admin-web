@@ -146,7 +146,6 @@
               }"
               row-key="id"
               :bordered="false"
-              :stripe="true"
               :loading="loading"
               @page-change="handlePageChange"
               @page-size-change="handlePageSizeChange"
@@ -212,7 +211,8 @@
 
 <script lang="ts" setup>
   import type { Form } from '@arco-design/web-vue';
-  import { ref, reactive, toRefs, getCurrentInstance } from 'vue';
+  import { Message } from '@arco-design/web-vue';
+  import { ref, reactive, toRefs } from 'vue';
   import useLoading from '@/hooks/loading';
   import { RoleParam, RoleRecord } from '@/types/system/Role';
   import { ClientRecord } from '@/types/system/Client';
@@ -222,7 +222,6 @@
   import RoleModal from './RoleModal.vue';
   import MenuTree from './MenuTree.vue';
 
-  const { proxy } = getCurrentInstance() as any;
   // 列表 loading
   const { loading, setLoading } = useLoading(false);
   // 应用下拉框 loading
@@ -338,35 +337,24 @@
   };
 
   const onAdd = () => {
-    RoleModalRef.value?.add(queryParams.value.tenantId);
+    RoleModalRef.value?.add(queryParams.value.tenantId as string);
   };
 
   const onEdit = (userId: string) => {
-    RoleModalRef.value?.edit(userId);
+    RoleModalRef.value?.edit(userId, queryParams.value.tenantId as string);
   };
   const onDetail = async (id: string) => {};
-  const onUpdate = (id: string) => {};
-  const handleDelete = (id: string[]) => {
-    deleteRole(queryParams.value.tenantId as string, id[0])
-      .then((res) => {
-        debugger;
-        proxy.$message.success(res.msg);
-        getList();
-      })
-      .catch((err) => {
-        proxy.$message.success(err);
-      })
-      .finally(() => {
-        // finally
-      });
-
-    // try {
-    //   const res = await deleteRole(queryParams.value.tenantId as string, id[0]);
-    //   proxy.$message.success(res.data.msg);
-    //   getList();
-    // } catch (err) {
-    //   proxy.$message.error(err);
-    // }
+  const onUpdate = (userId: string) => {
+    RoleModalRef.value?.edit(userId, queryParams.value.tenantId as string);
+  };
+  const handleDelete = async (id: string[]) => {
+    try {
+      const res = await deleteRole(queryParams.value.tenantId as string, id[0]);
+      Message.success(res.msg);
+      await getList();
+    } catch (err) {
+      Message.error(err as string);
+    }
   };
 
   defineExpose({

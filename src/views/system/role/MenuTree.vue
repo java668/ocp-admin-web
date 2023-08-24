@@ -18,6 +18,7 @@
         :show-line="true"
         :check-strictly="false"
         :checkable="true"
+        :action-on-node-click="expand"
         :field-names="{
           key: 'id',
           title: 'name',
@@ -32,9 +33,9 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import listMenu from '@/api/system/menu';
-  import handleTree from '@/utils/menu';
+  import handleTree from '@/utils/tree';
 
-  const treeData = ref([]);
+  const treeData = ref<any[]>([]);
 
   const getList = async () => {
     const res = await listMenu();

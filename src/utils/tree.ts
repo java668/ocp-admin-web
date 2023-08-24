@@ -9,62 +9,49 @@ export default function handleTree(
   data: any[],
   id?: any,
   parentId?: any,
-  children?: any[]
+  children?: any
 ) {
-  const config = {
+  type configType = { id: string; parentId: string; childrenList: string };
+  const config: configType = {
     id: id || 'id',
     parentId: parentId || 'parentId',
     childrenList: children || 'children',
   };
 
-  const childrenListMap = {};
-  const nodeIds = {};
-  const tree = [];
+  const childrenListMap: any = {};
+  const nodeIds: any = {};
+  const tree: any[] = [];
 
-  // eslint-disable-next-line no-restricted-syntax
-  for (const d of data) {
+  data.forEach((d) => {
     const pid = d[config.parentId];
-    // @ts-ignore
     if (childrenListMap[pid] == null) {
-      // @ts-ignore
       childrenListMap[pid] = [];
     }
-    // @ts-ignore
     nodeIds[d[config.id]] = d;
-    // @ts-ignore
     childrenListMap[pid].push(d);
-  }
+  });
 
-  // eslint-disable-next-line no-restricted-syntax
-  for (const d of data) {
+  data.forEach((d) => {
     const pid = d[config.parentId];
-    // @ts-ignore
     if (nodeIds[pid] == null) {
       tree.push(d);
     }
-  }
+  });
 
-  function adaptToChildrenList(o) {
-    // @ts-ignore
+  function adaptToChildrenList(o: any) {
     if (childrenListMap[o[config.id]] !== null) {
-      // @ts-ignore
       o[config.childrenList] = childrenListMap[o[config.id]];
     }
-    // @ts-ignore
     if (o[config.childrenList]) {
-      // eslint-disable-next-line no-restricted-syntax
-      // @ts-ignore
-      // eslint-disable-next-line no-restricted-syntax
-      for (const c of o[config.childrenList]) {
+      o[config.childrenList].forEach((c: any) => {
         adaptToChildrenList(c);
-      }
+      });
     }
   }
 
-  // eslint-disable-next-line no-restricted-syntax
-  for (const t of tree) {
+  tree.forEach((t) => {
     adaptToChildrenList(t);
-  }
+  });
 
   return tree;
 }

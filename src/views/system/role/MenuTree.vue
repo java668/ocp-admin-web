@@ -1,5 +1,5 @@
 <template>
-  <a-card title="资源分配" body-style="height=100%">
+  <a-card title="资源分配" body-style="{height:100px}">
     <template #extra>
       <a-button type="primary">
         <template #icon>
@@ -18,7 +18,6 @@
         :show-line="true"
         :check-strictly="false"
         :checkable="true"
-        :action-on-node-click="expand"
         :field-names="{
           key: 'id',
           title: 'name',

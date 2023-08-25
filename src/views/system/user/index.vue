@@ -381,7 +381,7 @@
   const handleRestPass = (id: number) => {
     restPass(id)
       .then((res) => {
-        proxy.$message.success(res.datas.msg);
+        proxy.$message.success(res.msg);
       })
       .catch((err) => {
         proxy.$message.success(err);

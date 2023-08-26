@@ -22,7 +22,7 @@ export function updateUser(data: UserRecord) {
   );
 }
 
-export function getUser(userId: number) {
+export function getUser(userId: string) {
   return axios.get<UserRecord, HttpResponse<UserRecord>>(
     '/api-user/users-anon/userId',
     {

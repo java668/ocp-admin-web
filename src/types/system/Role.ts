@@ -7,8 +7,8 @@ export interface RoleParam {
 }
 export interface RoleRecord {
   id?: string | undefined;
-  createTime: string | undefined;
-  updateTime: string | undefined;
+  createTime?: string | undefined;
+  updateTime?: string | undefined;
   code: string | undefined;
   name: string | undefined;
   userId?: any;

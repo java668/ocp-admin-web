@@ -52,7 +52,7 @@
   const visible = ref(false);
   const formRef = ref<InstanceType<typeof Form>>();
 
-  const getInitForm = () => ({
+  const getInitForm = (): RoleRecord => ({
     id: undefined,
     name: undefined,
     code: undefined,
@@ -61,7 +61,7 @@
 
   const data = reactive({
     // 表单数据
-    form: getInitForm() as RoleRecord,
+    form: getInitForm(),
     // 表单验证规则
     rules: {
       name: [
@@ -101,9 +101,8 @@
   };
 
   const handleCancel = ($parent: any) => {
+    form.value = getInitForm();
     visible.value = false;
-    form.value = getInitForm() as RoleRecord;
-    formRef.value?.resetFields();
     $parent.getList();
   };
 

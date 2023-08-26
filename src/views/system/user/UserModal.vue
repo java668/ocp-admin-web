@@ -135,7 +135,6 @@
 
   const add = () => {
     getRoleOptions();
-    form.value = getInitForm();
     visible.value = true;
   };
   const edit = async (userId: string) => {
@@ -149,15 +148,13 @@
   };
 
   const handleCancel = ($parent: any) => {
-    visible.value = false;
     form.value = getInitForm();
-    proxy.$refs.formRef?.resetFields();
+    visible.value = false;
     $parent.getList();
   };
 
   const handleOk = ($parent: any) => {
     proxy.$refs.formRef.validate((valid: any) => {
-      debugger;
       if (!valid) {
         form.value.roleId = form.value.roleId.toString();
         if (form.value.id) {

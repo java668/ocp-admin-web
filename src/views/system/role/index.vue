@@ -49,163 +49,156 @@
           </a-col>
         </a-row>
       </a-form>
-      <a-grid :cols="24" :col-gap="16" :row-gap="16">
-        <a-grid-item :span="16">
-          <a-card title="角色列表">
-            <a-row class="toolbar">
-              <a-col :span="12">
-                <a-space>
-                  <a-button type="primary" @click="onAdd">
-                    <template #icon>
-                      <icon-plus />
-                    </template>
-                    新增
-                  </a-button>
+      <a-row class="toolbar">
+        <a-col :span="12">
+          <a-space>
+            <a-button type="primary" @click="onAdd">
+              <template #icon>
+                <icon-plus />
+              </template>
+              新增
+            </a-button>
+            <a-button
+              type="primary"
+              status="success"
+              :disabled="single"
+              @click="onEdit(ids[0])"
+            >
+              <template #icon>
+                <icon-edit />
+              </template>
+              修改
+            </a-button>
+            <a-button
+              type="primary"
+              status="danger"
+              :disabled="multiple"
+              @click="$message.warning('功能尚在开发中')"
+            >
+              <template #icon>
+                <icon-delete />
+              </template>
+              删除
+            </a-button>
+          </a-space>
+        </a-col>
+        <a-col
+          :span="12"
+          style="display: flex; align-items: center; justify-content: end"
+        >
+          <a-button-group>
+            <a-button title="刷新" @click="handleQuery">
+              <template #icon>
+                <icon-refresh size="20" />
+              </template>
+            </a-button>
+            <a-button title="导出" @click="$message.warning('功能尚在开发中')">
+              <template #icon>
+                <icon-import size="20" />
+              </template>
+            </a-button>
+            <a-button title="导入" @click="$message.warning('功能尚在开发中')">
+              <template #icon>
+                <icon-download size="20" />
+              </template>
+            </a-button>
+            <a-button title="导入" @click="$message.warning('功能尚在开发中')">
+              <template #icon>
+                <icon-line-height size="20" />
+              </template>
+            </a-button>
+            <a-button title="导入" @click="$message.warning('功能尚在开发中')">
+              <template #icon>
+                <icon-settings size="20" />
+              </template>
+            </a-button>
+          </a-button-group>
+        </a-col>
+      </a-row>
+      <a-table
+        ref="tableRef"
+        :data="roleList"
+        :row-selection="{
+          type: 'checkbox',
+          showCheckedAll: true,
+          onlyCurrent: false,
+        }"
+        :pagination="{
+          showTotal: true,
+          showPageSize: true,
+          total: total,
+          current: queryParams.page,
+        }"
+        row-key="id"
+        :bordered="false"
+        :loading="loading"
+        @page-change="handlePageChange"
+        @page-size-change="handlePageSizeChange"
+        @select="handleSelectionChange"
+      >
+        <template #columns>
+          <a-table-column title="ID" data-index="id" />
+          <a-table-column title="角色名">
+            <template #cell="{ record }">
+              <a-link @click="onDetail(record.id)">{{ record.name }} </a-link>
+            </template>
+          </a-table-column>
+          <a-table-column title="角色编码" data-index="code" />
+          <a-table-column title="创建时间">
+            <template #cell="{ record }">
+              {{ record.createTime }}
+            </template>
+          </a-table-column>
+          <a-table-column title="操作" align="center" fixed="right">
+            <template #cell="{ record }">
+              <a-space :size="2">
+                <a-button
+                  size="mini"
+                  title="修改"
+                  status="success"
+                  @click="onUpdate(record.id)"
+                >
+                  <template #icon>
+                    <icon-edit />
+                  </template>
+                  修改
+                </a-button>
+                <a-button
+                  size="mini"
+                  title="角色赋权"
+                  status="warning"
+                  @click="onAddMenu(record.id)"
+                >
+                  <template #icon>
+                    <icon-plus-circle />
+                  </template>
+                  资源分配
+                </a-button>
+                <a-popconfirm
+                  content="确定要删除当前选中的数据吗？"
+                  type="warning"
+                  @ok="handleDelete([record.id])"
+                >
                   <a-button
-                    type="primary"
-                    status="success"
-                    :disabled="single"
-                    @click="onEdit(ids[0])"
-                  >
-                    <template #icon>
-                      <icon-edit />
-                    </template>
-                    修改
-                  </a-button>
-                  <a-button
-                    type="primary"
+                    size="mini"
+                    title="删除"
+                    :disabled="record.disabled"
                     status="danger"
-                    :disabled="multiple"
-                    @click="$message.warning('功能尚在开发中')"
                   >
                     <template #icon>
                       <icon-delete />
                     </template>
                     删除
                   </a-button>
-                </a-space>
-              </a-col>
-              <a-col
-                :span="12"
-                style="display: flex; align-items: center; justify-content: end"
-              >
-                <a-button-group>
-                  <a-button title="刷新" @click="handleQuery">
-                    <template #icon>
-                      <icon-refresh size="20" />
-                    </template>
-                  </a-button>
-                  <a-button
-                    title="导出"
-                    @click="$message.warning('功能尚在开发中')"
-                  >
-                    <template #icon>
-                      <icon-import size="20" />
-                    </template>
-                  </a-button>
-                  <a-button
-                    title="导入"
-                    @click="$message.warning('功能尚在开发中')"
-                  >
-                    <template #icon>
-                      <icon-download size="20" />
-                    </template>
-                  </a-button>
-                  <a-button
-                    title="导入"
-                    @click="$message.warning('功能尚在开发中')"
-                  >
-                    <template #icon>
-                      <icon-line-height size="20" />
-                    </template>
-                  </a-button>
-                  <a-button
-                    title="导入"
-                    @click="$message.warning('功能尚在开发中')"
-                  >
-                    <template #icon>
-                      <icon-settings size="20" />
-                    </template>
-                  </a-button>
-                </a-button-group>
-              </a-col>
-            </a-row>
-            <a-table
-              ref="tableRef"
-              :data="roleList"
-              :row-selection="{
-                type: 'checkbox',
-                showCheckedAll: true,
-                onlyCurrent: false,
-              }"
-              :pagination="{
-                showTotal: true,
-                showPageSize: true,
-                total: total,
-                current: queryParams.page,
-              }"
-              row-key="id"
-              :bordered="false"
-              :loading="loading"
-              @page-change="handlePageChange"
-              @page-size-change="handlePageSizeChange"
-              @select="handleSelectionChange"
-            >
-              <template #columns>
-                <a-table-column title="ID" data-index="id" />
-                <a-table-column title="角色名">
-                  <template #cell="{ record }">
-                    <a-link @click="onDetail(record.id)"
-                      >{{ record.name }}
-                    </a-link>
-                  </template>
-                </a-table-column>
-                <a-table-column title="角色编码" data-index="code" />
-                <a-table-column title="创建时间">
-                  <template #cell="{ record }">
-                    {{ record.createTime }}
-                  </template>
-                </a-table-column>
-                <a-table-column title="操作" align="center" fixed="right">
-                  <template #cell="{ record }">
-                    <a-button
-                      type="text"
-                      size="small"
-                      title="修改"
-                      @click="onUpdate(record.id)"
-                    >
-                      <template #icon>
-                        <icon-edit />
-                      </template>
-                    </a-button>
-                    <a-popconfirm
-                      content="确定要删除当前选中的数据吗？"
-                      type="warning"
-                      @ok="handleDelete([record.id])"
-                    >
-                      <a-button
-                        type="text"
-                        size="small"
-                        title="删除"
-                        :disabled="record.disabled"
-                      >
-                        <template #icon>
-                          <icon-delete />
-                        </template>
-                      </a-button>
-                    </a-popconfirm>
-                  </template>
-                </a-table-column>
-              </template>
-            </a-table>
-          </a-card>
-        </a-grid-item>
-        <a-grid-item :span="8">
-          <MenuTree ref="MenuTreeRef"></MenuTree>
-        </a-grid-item>
-      </a-grid>
+                </a-popconfirm>
+              </a-space>
+            </template>
+          </a-table-column>
+        </template>
+      </a-table>
     </a-card>
     <RoleModal ref="RoleModalRef"></RoleModal>
+    <MenuModal ref="MenuModalRef"></MenuModal>
   </div>
 </template>
 
@@ -220,7 +213,7 @@
   import { listClient } from '@/api/system/client';
   import { toNumber } from 'lodash';
   import RoleModal from './RoleModal.vue';
-  import MenuTree from './MenuTree.vue';
+  import MenuModal from './MenuModal.vue';
 
   // 列表 loading
   const { loading, setLoading } = useLoading(false);
@@ -238,6 +231,7 @@
   const appOptions = ref<ClientRecord[]>([]);
   const queryRef = ref<InstanceType<typeof Form>>();
   const RoleModalRef = ref<InstanceType<typeof RoleModal>>();
+  const MenuModalRef = ref<InstanceType<typeof MenuModal>>();
 
   const data = reactive({
     // 查询参数
@@ -344,8 +338,11 @@
     RoleModalRef.value?.edit(userId, queryParams.value.tenantId as string);
   };
   const onDetail = async (id: string) => {};
-  const onUpdate = (userId: string) => {
-    RoleModalRef.value?.edit(userId, queryParams.value.tenantId as string);
+  const onUpdate = (roleId: string) => {
+    RoleModalRef.value?.edit(roleId, queryParams.value.tenantId as string);
+  };
+  const onAddMenu = (roleId: string) => {
+    MenuModalRef.value?.add(roleId, queryParams.value.tenantId as string);
   };
   const handleDelete = async (id: string[]) => {
     try {

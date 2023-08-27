@@ -18,6 +18,7 @@
       :check-strictly="false"
       :default-expand-all="true"
       :default-checked-keys="checkedKeys"
+      :only-check-leaf="true"
       :data="treeData"
       :field-names="{
         key: 'id',

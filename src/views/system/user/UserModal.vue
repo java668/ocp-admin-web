@@ -164,7 +164,8 @@
               proxy.$message.success(res.msg);
             })
             .catch((err) => {
-              throw new Error(err);
+              proxy.$message.success(err);
+              return false;
             });
         } else {
           addUser(form.value)
@@ -173,7 +174,8 @@
               proxy.$message.success(res.msg);
             })
             .catch((err) => {
-              throw new Error(err);
+              proxy.$message.success(err);
+              return false;
             });
         }
         $parent.getList();

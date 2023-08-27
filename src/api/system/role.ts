@@ -1,4 +1,4 @@
-import { RoleParam, RoleRecord } from '@/types/system/Role';
+import { RoleGranted, RoleParam, RoleRecord } from '@/types/system/Role';
 import axios from 'axios';
 import { HttpResponse } from '@/types/global';
 
@@ -40,5 +40,12 @@ export function page(params: RoleParam) {
 export function listRole() {
   return axios.get<RoleRecord[], HttpResponse<RoleRecord[]>>(
     '/api-user/allRoles'
+  );
+}
+
+export function granted(data: RoleGranted, tenantId: string) {
+  return axios.post<RoleGranted, HttpResponse<RoleGranted>>(
+    `/api-user/menus/granted?tenantId=${tenantId}`,
+    data
   );
 }

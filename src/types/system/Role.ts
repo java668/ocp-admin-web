@@ -14,3 +14,8 @@ export interface RoleRecord {
   userId?: any;
   remarks?: string | undefined;
 }
+
+export interface RoleGranted {
+  menuIds: string[];
+  roleId: string;
+}

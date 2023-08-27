@@ -42,7 +42,6 @@
   import { OnlyCh, OnlyEn } from '@/utils/regexp';
   import { RoleRecord } from '@/types/system/Role';
   import { Form } from '@arco-design/web-vue';
-  import Role from './index.vue';
 
   const { proxy } = getCurrentInstance() as any;
 
@@ -118,6 +117,7 @@
             })
             .catch((err) => {
               proxy.$message.success(err);
+              return false;
             });
         } else {
           addRole(tenantId.value, form.value)
@@ -127,6 +127,7 @@
             })
             .catch((err) => {
               proxy.$message.success(err);
+              return false;
             });
         }
         $parent.getList();

@@ -35,7 +35,7 @@ const LIST: AppRouteRecordRaw = {
     {
       path: 'menu',
       name: 'Menu',
-      component: () => import('@/views/list/card/index.vue'),
+      component: () => import('@/views/system/menu/index.vue'),
       meta: {
         locale: 'menu.system.menu',
         requiresAuth: true,

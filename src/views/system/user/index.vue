@@ -35,7 +35,7 @@
             </a-form-item>
           </a-col>
           <a-col :xs="12" :md="12" :lg="8" :xl="6" :xxl="6">
-            <a-space>
+            <a-space style="margin-bottom: 20px">
               <a-button type="primary" status="success" @click="handleQuery">
                 <template #icon>
                   <icon-search />
@@ -52,7 +52,6 @@
           </a-col>
         </a-row>
       </a-form>
-      <a-divider style="margin-top: 0; margin-bottom: 10px" />
       <a-row class="toolbar">
         <a-col :span="12">
           <a-space>

@@ -41,7 +41,6 @@ export interface HttpResponse<T = unknown> {
   msg: string;
   statusCodeValue: number;
   code: number;
-  datas: T;
   data: T;
   count: number;
 }

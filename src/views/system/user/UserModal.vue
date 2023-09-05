@@ -122,28 +122,30 @@
 
   const title = computed(() => (form.value.id ? '编辑用户' : '新增用户'));
 
-  const getRoleOptions = () => {
+  const getRoleOptions = async () => {
     setLoading(true);
-    listRole()
-      .then((res) => {
-        roleOptions.value = res.datas;
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const res = await listRole();
+      roleOptions.value = res.data;
+    } finally {
+      setLoading(false);
+    }
+  };
+  const getUserData = async (userId: string) => {
+    const res = await getUser(userId);
+    Object.assign(form.value, res.data);
+    form.value.roleId = res.data.roles?.map((role) => {
+      return role.id;
+    });
   };
 
   const add = () => {
     getRoleOptions();
     visible.value = true;
   };
+
   const edit = async (userId: string) => {
-    getRoleOptions();
-    const item = (await getUser(userId)) as UserRecord;
-    Object.assign(form.value, item);
-    form.value.roleId = item.roles?.map((role) => {
-      return role.id;
-    });
+    await Promise.all([getRoleOptions(), getUserData(userId)]);
     visible.value = true;
   };
 
